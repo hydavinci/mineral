@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mineral | 收藏库</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #08080d;
+      --surface: rgba(14, 14, 22, 0.8);
+      --border: rgba(255, 255, 255, 0.06);
+      --text: #e0e0e0;
+      --text-muted: #888;
+      --text-dim: #555;
+      --accent: #4fc3f7;
+      --accent-dim: rgba(79, 195, 247, 0.12);
+      --radius: 14px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 48px 24px;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(79, 195, 247, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79, 195, 247, 0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .logo { font-size: 32px; }
+
+    .header-text h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .header-text p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .stats {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* Add button */
+    .add-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--accent);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .add-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      transform: scale(1.05);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: #12121a;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      width: 90%;
+      max-width: 460px;
+      transform: translateY(10px);
+      transition: transform 0.25s;
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .modal label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      margin-top: 14px;
+    }
+
+    .modal label:first-of-type { margin-top: 0; }
+
+    .modal input, .modal textarea {
+      width: 100%;
+      padding: 9px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .modal input:focus, .modal textarea:focus {
+      border-color: rgba(79, 195, 247, 0.4);
+    }
+
+    .modal textarea { resize: vertical; min-height: 50px; }
+
+    /* Autocomplete */
+    .autocomplete-wrap {
+      position: relative;
+    }
+
+    .autocomplete-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #1a1a2a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-top: 4px;
+      max-height: 160px;
+      overflow-y: auto;
+      display: none;
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .autocomplete-list.show {
+      display: block;
+    }
+
+    .autocomplete-item {
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .autocomplete-item:hover,
+    .autocomplete-item.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    .autocomplete-item .cat-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.6;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+      justify-content: flex-end;
+    }
+
+    .modal-actions button {
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel {
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .btn-cancel:hover {
+      border-color: var(--text-muted);
+    }
+
+    .btn-save {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
+      font-weight: 600;
+    }
+
+    .btn-save:hover {
+      opacity: 0.85;
+    }
+
+    .btn-save:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: #1a1a2a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 13px;
+      color: var(--accent);
+      z-index: 2000;
+      transition: transform 0.3s ease;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Access Gate */
+    .access-gate {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .access-gate::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(79, 195, 247, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79, 195, 247, 0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .access-crystal {
+      font-size: 56px;
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px rgba(79, 195, 247, 0.3));
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(3deg); }
+    }
+
+    .access-title {
+      font-size: 14px;
+      color: var(--text-muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .access-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .access-box input {
+      width: 180px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 16px;
+      font-family: 'Inter', monospace;
+      letter-spacing: 8px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .access-box input:focus {
+      border-color: rgba(79, 195, 247, 0.5);
+      box-shadow: 0 0 20px rgba(79, 195, 247, 0.1);
+    }
+
+    .access-box input.shake {
+      animation: shake 0.4s ease;
+      border-color: rgba(244, 67, 54, 0.5);
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      50% { transform: translateX(8px); }
+      75% { transform: translateX(-4px); }
+    }
+
+    .access-enter {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--accent);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .access-enter:hover {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      transform: scale(1.05);
+    }
+
+    .access-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: -8px;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 14px 10px 36px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: rgba(79, 195, 247, 0.4);
+    }
+
+    .search-box::before {
+      content: '🔍';
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    /* Category filters */
+    .filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .filter-btn.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      backdrop-filter: blur(8px);
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(79, 195, 247, 0), rgba(79, 195, 247, 0));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      transition: background 0.3s;
+      pointer-events: none;
+    }
+
+    .card:hover::before {
+      background: linear-gradient(135deg, rgba(79, 195, 247, 0.4), rgba(156, 39, 176, 0.2));
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      border-color: rgba(79, 195, 247, 0.15);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-favicon {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-category {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 2px 7px;
+      border-radius: 12px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .card-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .card-url {
+      font-size: 11px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+
+    .card-date {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .card-arrow {
+      font-size: 13px;
+      color: var(--text-dim);
+      transition: transform 0.2s, color 0.2s;
+    }
+
+    .card:hover .card-arrow {
+      transform: translateX(3px);
+      color: var(--accent);
+    }
+
+    /* Tags */
+    .card-tags {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-dim);
+    }
+
+    /* Card actions */
+    .card-actions {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .card:hover .card-actions {
+      opacity: 1;
+    }
+
+    .card-action-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: rgba(8, 8, 13, 0.9);
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+
+    .card-action-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .card-action-btn.delete:hover {
+      border-color: #f44336;
+      color: #f44336;
+      background: rgba(244, 67, 54, 0.1);
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    /* Animations */
+    .card {
+      opacity: 0;
+      animation: fadeUp 0.35s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      body { padding: 32px 14px; }
+      .grid { grid-template-columns: 1fr; }
+      .header { flex-wrap: wrap; }
+      .stats { margin-left: 0; margin-top: 8px; width: 100%; }
+      .controls { flex-direction: column; }
+      .search-box { min-width: 100%; }
+    }
+
+    /* Light theme */
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f5f5f7;
+        --surface: rgba(255, 255, 255, 0.9);
+        --border: rgba(0, 0, 0, 0.06);
+        --text: #333;
+        --text-muted: #666;
+        --text-dim: #aaa;
+        --accent: #1565c0;
+        --accent-dim: rgba(21, 101, 192, 0.08);
+      }
+      body::before {
+        background-image:
+          linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+      }
+      .card-title { color: #111; }
+      .card:hover { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Access Gate -->
+  <div class="access-gate" id="access-gate">
+    <div class="access-crystal">💎</div>
+    <div class="access-title">Mineral</div>
+    <div class="access-box">
+      <input type="password" id="access-input" maxlength="6" placeholder="····" autocomplete="off">
+      <button class="access-enter" id="access-submit">→</button>
+    </div>
+    <div class="access-hint">enter access code</div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <div class="logo">💎</div>
+      <div class="header-text">
+        <h1>Mineral</h1>
+        <p>收藏库 · 值得反复访问的网站</p>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="controls">
+      <div class="search-box">
+        <input type="text" id="search" placeholder="搜索书签..." autocomplete="off">
+      </div>
+      <div class="filters" id="filters"></div>
+      <button class="add-btn" id="addBtn" title="添加书签">+</button>
+    </div>
+
+    <!-- Add Modal -->
+    <div class="modal-overlay" id="modal">
+      <div class="modal">
+        <h2>✨ 添加收藏</h2>
+        <label>URL *</label>
+        <input type="url" id="m-url" placeholder="https://..." autocomplete="off">
+        <div id="m-fetching" style="font-size:11px;color:var(--text-dim);margin-top:4px;display:none">✨ 正在获取网站信息...</div>
+        <label>标题</label>
+        <input type="text" id="m-title" placeholder="网站名称（留空自动获取）">
+        <label>描述</label>
+        <textarea id="m-desc" placeholder="一句话介绍"></textarea>
+        <label>分类</label>
+        <div class="autocomplete-wrap" id="cat-wrap">
+          <input type="text" id="m-cat" placeholder="输入或选择分类" autocomplete="off">
+          <div class="autocomplete-list" id="cat-list"></div>
+        </div>
+        <label>标签（逗号分隔）</label>
+        <input type="text" id="m-tags" placeholder="ai, tool, design">
+        <div class="modal-actions">
+          <button class="btn-cancel" id="modalCancel">取消</button>
+          <button class="btn-save" id="modalSave">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" style="display:none">
+      <div class="empty-icon">🔮</div>
+      <p>没有匹配的书签</p>
+    </div>
+  </div>
+
+  <script>
+    let bookmarks = [];
+    let activeCategory = 'All';
+    let searchQuery = '';
+    let ACCESS_CODE = '';
+
+    // Access gate - custom modal instead of prompt()
+    (function checkAccess() {
+      const saved = sessionStorage.getItem('mineral_access');
+      if (saved === 'granted') { ACCESS_CODE = '0824'; return; }
+      // Show custom access gate
+      document.getElementById('access-gate').style.display = 'flex';
+      document.querySelector('.container').style.display = 'none';
+      document.getElementById('access-input').focus();
+    })();
+
+    function submitAccess() {
+      const input = document.getElementById('access-input');
+      const code = input.value.trim();
+      const gate = document.getElementById('access-gate');
+      if (code === '0824') {
+        sessionStorage.setItem('mineral_access', 'granted');
+        ACCESS_CODE = code;
+        gate.style.display = 'none';
+        document.querySelector('.container').style.display = 'block';
+        init();
+      } else {
+        input.classList.add('shake');
+        input.value = '';
+        setTimeout(() => input.classList.remove('shake'), 500);
+      }
+    }
+
+    document.getElementById('access-submit')?.addEventListener('click', submitAccess);
+    document.getElementById('access-input')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitAccess();
+    });
+
+    async function init() {
+      const res = await fetch('data/bookmarks.json');
+      bookmarks = await res.json();
+      renderFilters();
+      render();
+      document.getElementById('stats').textContent = `${bookmarks.length} 个收藏`;
+    }
+
+    function getCategories() {
+      const cats = [...new Set(bookmarks.map(b => b.category))];
+      cats.sort();
+      return ['All', ...cats];
+    }
+
+    function renderFilters() {
+      const container = document.getElementById('filters');
+      container.innerHTML = getCategories().map(cat =>
+        `<button class="filter-btn ${cat === activeCategory ? 'active' : ''}" data-cat="${cat}">${cat === 'All' ? '全部' : cat}</button>`
+      ).join('');
+
+      container.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeCategory = btn.dataset.cat;
+          renderFilters();
+          render();
+        });
+      });
+    }
+
+    function getFavicon(url) {
+      try {
+        const domain = new URL(url).hostname;
+        return `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+      } catch { return ''; }
+    }
+
+    function matchesSearch(b) {
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        b.title.toLowerCase().includes(q) ||
+        b.description.toLowerCase().includes(q) ||
+        (b.tags || []).some(t => t.toLowerCase().includes(q)) ||
+        b.url.toLowerCase().includes(q)
+      );
+    }
+
+    function matchesCategory(b) {
+      return activeCategory === 'All' || b.category === activeCategory;
+    }
+
+    function getDomain(url) {
+      try { return new URL(url).hostname.replace('www.', ''); }
+      catch { return url; }
+    }
+
+    function render() {
+      const grid = document.getElementById('grid');
+      const empty = document.getElementById('empty');
+      const filtered = bookmarks.filter(b => matchesCategory(b) && matchesSearch(b));
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      grid.innerHTML = filtered.map((b, i) => {
+        const realIndex = bookmarks.indexOf(b);
+        return `
+        <div class="card" style="animation-delay: ${i * 0.04}s">
+          <div class="card-actions">
+            <button class="card-action-btn edit" data-idx="${realIndex}" title="编辑">✏</button>
+            <button class="card-action-btn delete" data-idx="${realIndex}" title="删除">✕</button>
+          </div>
+          <a href="${b.url}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:10px;flex:1">
+            <div class="card-top">
+              <img class="card-favicon" src="${b.favicon || getFavicon(b.url)}" alt="" onerror="this.style.display='none'">
+              <div class="card-title">${b.title}</div>
+              <span class="card-category">${b.category}</span>
+            </div>
+            <div class="card-desc">${b.description}</div>
+            ${b.tags && b.tags.length ? `<div class="card-tags">${b.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>` : ''}
+            <div class="card-footer">
+              <span class="card-url">${getDomain(b.url)}</span>
+              <span class="card-date">${b.added || ''}</span>
+              <span class="card-arrow">→</span>
+            </div>
+          </a>
+        </div>
+      `}).join('');
+
+      // Bind edit/delete
+      grid.querySelectorAll('.card-action-btn.edit').forEach(btn => {
+        btn.addEventListener('click', (e) => { e.stopPropagation(); editBookmark(+btn.dataset.idx); });
+      });
+      grid.querySelectorAll('.card-action-btn.delete').forEach(btn => {
+        btn.addEventListener('click', (e) => { e.stopPropagation(); deleteBookmark(+btn.dataset.idx); });
+      });
+    }
+
+    // Search
+    document.getElementById('search').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      render();
+    });
+
+    // Keyboard shortcut: / to focus search, Escape to close modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        document.getElementById('search').focus();
+      }
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Category autocomplete
+    const catInput = document.getElementById('m-cat');
+    const catList = document.getElementById('cat-list');
+    let catActiveIdx = -1;
+
+    function getExistingCategories() {
+      const cats = [...new Set(bookmarks.map(b => b.category).filter(Boolean))];
+      // Add default suggestions
+      const defaults = ['AI', 'Dev', 'Design', 'Tools', 'Reading', 'News', 'Fun', 'Infra'];
+      defaults.forEach(d => { if (!cats.includes(d)) cats.push(d); });
+      return cats.sort();
+    }
+
+    function renderCatSuggestions(filter) {
+      const all = getExistingCategories();
+      const q = (filter || '').toLowerCase();
+      const matched = q ? all.filter(c => c.toLowerCase().includes(q)) : all;
+      if (matched.length === 0) {
+        catList.classList.remove('show');
+        return;
+      }
+      // Hide if exact match already typed
+      if (matched.length === 1 && matched[0].toLowerCase() === q) {
+        catList.classList.remove('show');
+        return;
+      }
+      catActiveIdx = Math.min(catActiveIdx, matched.length - 1);
+      catList.innerHTML = matched.map((c, i) =>
+        `<div class="autocomplete-item ${i === catActiveIdx ? 'active' : ''}" data-val="${c}"><span class="cat-dot"></span>${c}</div>`
+      ).join('');
+      catList.classList.add('show');
+
+      catList.querySelectorAll('.autocomplete-item').forEach(item => {
+        item.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          catInput.value = item.dataset.val;
+          catList.classList.remove('show');
+        });
+      });
+    }
+
+    catInput.addEventListener('focus', () => renderCatSuggestions(catInput.value));
+    catInput.addEventListener('input', () => { catActiveIdx = -1; renderCatSuggestions(catInput.value); });
+    catInput.addEventListener('blur', () => setTimeout(() => catList.classList.remove('show'), 150));
+    catInput.addEventListener('keydown', (e) => {
+      const items = catList.querySelectorAll('.autocomplete-item');
+      if (!items.length) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        catActiveIdx = Math.min(catActiveIdx + 1, items.length - 1);
+        renderCatSuggestions(catInput.value);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        catActiveIdx = Math.max(catActiveIdx - 1, 0);
+        renderCatSuggestions(catInput.value);
+      } else if (e.key === 'Enter' && catActiveIdx >= 0) {
+        e.preventDefault();
+        catInput.value = items[catActiveIdx].dataset.val;
+        catList.classList.remove('show');
+        catActiveIdx = -1;
+      }
+    });
+
+    // Add modal
+    const modal = document.getElementById('modal');
+    const addBtn = document.getElementById('addBtn');
+
+    function openModal() { modal.classList.add('active'); document.getElementById('m-url').focus(); }
+    function closeModal() { modal.classList.remove('active'); }
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    async function deleteBookmark(idx) {
+      if (!confirm('确定删除这个收藏？')) return;
+      try {
+        const res = await fetch(`/api/bookmarks?index=${idx}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${ACCESS_CODE}` },
+        });
+        if (res.ok) {
+          bookmarks.splice(idx, 1);
+          renderFilters();
+          render();
+          document.getElementById('stats').textContent = `${bookmarks.length} 个收藏`;
+          showToast('✅ 已删除');
+        } else {
+          showToast('❌ 删除失败');
+        }
+      } catch (e) { showToast('❌ 网络错误'); }
+    }
+
+    let editingIndex = -1;
+
+    function editBookmark(idx) {
+      editingIndex = idx;
+      const b = bookmarks[idx];
+      document.getElementById('m-url').value = b.url || '';
+      document.getElementById('m-title').value = b.title || '';
+      document.getElementById('m-desc').value = b.description || '';
+      document.getElementById('m-cat').value = b.category || '';
+      document.getElementById('m-tags').value = (b.tags || []).join(', ');
+      document.querySelector('.modal h2').textContent = '✏️ 编辑收藏';
+      openModal();
+    }
+
+    addBtn.addEventListener('click', () => {
+      editingIndex = -1;
+      ['m-url','m-title','m-desc','m-cat','m-tags'].forEach(id => document.getElementById(id).value = '');
+      document.querySelector('.modal h2').textContent = '✨ 添加收藏';
+      openModal();
+    });
+    document.getElementById('modalCancel').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    // Auto-fetch metadata on URL input
+    let fetchTimer = null;
+    document.getElementById('m-url').addEventListener('blur', autoFetchMeta);
+    document.getElementById('m-url').addEventListener('input', () => {
+      clearTimeout(fetchTimer);
+      fetchTimer = setTimeout(autoFetchMeta, 800);
+    });
+
+    async function autoFetchMeta() {
+      const urlInput = document.getElementById('m-url');
+      const url = urlInput.value.trim();
+      if (!url || !url.startsWith('http')) return;
+      // Don't re-fetch if fields already filled
+      if (document.getElementById('m-title').value && document.getElementById('m-desc').value) return;
+
+      const hint = document.getElementById('m-fetching');
+      hint.style.display = 'block';
+
+      try {
+        const res = await fetch('/api/fetch-meta', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ACCESS_CODE}` },
+          body: JSON.stringify({ url }),
+        });
+        if (res.ok) {
+          const meta = await res.json();
+          if (meta.title && !document.getElementById('m-title').value) {
+            document.getElementById('m-title').value = meta.title;
+          }
+          if (meta.description && !document.getElementById('m-desc').value) {
+            document.getElementById('m-desc').value = meta.description;
+          }
+          if (meta.category && !document.getElementById('m-cat').value) {
+            document.getElementById('m-cat').value = meta.category;
+          }
+          if (meta.title || meta.description) {
+            hint.textContent = '✅ 已自动填充';
+            setTimeout(() => { hint.style.display = 'none'; hint.textContent = '✨ 正在获取网站信息...'; }, 1500);
+            return;
+          }
+        }
+      } catch (e) { /* silent */ }
+
+      hint.textContent = '⚠️ 无法自动获取，请手动填写';
+      setTimeout(() => { hint.style.display = 'none'; hint.textContent = '✨ 正在获取网站信息...'; }, 2000);
+    }
+
+    document.getElementById('modalSave').addEventListener('click', async () => {
+      const url = document.getElementById('m-url').value.trim();
+      if (!url) return;
+
+      const btn = document.getElementById('modalSave');
+      btn.disabled = true;
+      btn.textContent = '保存中...';
+
+      const tags = document.getElementById('m-tags').value.trim();
+      const body = {
+        url,
+        title: document.getElementById('m-title').value.trim(),
+        description: document.getElementById('m-desc').value.trim(),
+        category: document.getElementById('m-cat').value.trim() || 'Uncategorized',
+        tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+      };
+
+      try {
+        let res;
+        if (editingIndex >= 0) {
+          // Edit mode
+          res = await fetch(`/api/bookmarks?index=${editingIndex}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ACCESS_CODE}` },
+            body: JSON.stringify(body),
+          });
+          if (res.ok) {
+            const updated = await res.json();
+            bookmarks[editingIndex] = updated;
+            renderFilters();
+            render();
+            closeModal();
+            showToast('✅ 已更新');
+          } else {
+            showToast('❌ 更新失败');
+          }
+        } else {
+          // Add mode
+          res = await fetch('/api/bookmarks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ACCESS_CODE}` },
+            body: JSON.stringify(body),
+          });
+          if (res.ok) {
+            const added = await res.json();
+            bookmarks.push(added);
+            renderFilters();
+            render();
+            document.getElementById('stats').textContent = `${bookmarks.length} 个收藏`;
+            closeModal();
+            showToast('✅ 已添加');
+            ['m-url','m-title','m-desc','m-cat','m-tags'].forEach(id => document.getElementById(id).value = '');
+          } else {
+            showToast('❌ 保存失败');
+          }
+        }
+      } catch (err) {
+        showToast('❌ 网络错误');
+      }
+      btn.disabled = false;
+      btn.textContent = '保存';
+    });
+
+    // Only init if already authenticated
+    if (sessionStorage.getItem('mineral_access') === 'granted') {
+      document.getElementById('access-gate').style.display = 'none';
+      init();
+    }
+  </script>
+</body>
+</html>

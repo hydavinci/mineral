@@ -1,0 +1,70 @@
+[
+  {
+    "title": "Blueprint.am",
+    "url": "https://www.blueprint.am/",
+    "description": "AI Hardware Design Tool - 用 AI 设计硬件项目",
+    "category": "AI",
+    "tags": [
+      "ai",
+      "hardware",
+      "design",
+      "tool"
+    ],
+    "added": "2026-06-05",
+    "favicon": ""
+  },
+  {
+    "title": "Dash",
+    "url": "https://dash.cloudflare.com/",
+    "description": "Cloudflare Dashboard — manage DNS, CDN, security, and performance for your websites",
+    "category": "Tools",
+    "tags": [],
+    "added": "2026-06-05",
+    "favicon": ""
+  },
+  {
+    "title": "Namecheap",
+    "url": "https://ap.www.namecheap.com",
+    "description": "Log In to your Namecheap Account. If you don't have an account yet, Sign Up and start discovering Namecheap.com website.",
+    "category": "Tools",
+    "tags": [],
+    "added": "2026-06-05",
+    "favicon": ""
+  },
+  {
+    "title": "Stellarium Web Online Star Map",
+    "url": "https://stellarium-web.org/",
+    "description": "Stellarium Web is a planetarium running in your web browser. It shows a realistic star map, just like what you see with the naked eye, binoculars or a telescope.",
+    "category": "Tools",
+    "tags": [],
+    "added": "2026-06-05",
+    "favicon": ""
+  },
+  {
+    "title": "GitHub",
+    "url": "https://github.com/",
+    "description": "Join the world's most widely adopted, AI-powered developer platform where millions of developers, businesses, and the largest open source community build software that advances humanity.",
+    "category": "AI",
+    "tags": [],
+    "added": "2026-06-05",
+    "favicon": ""
+  },
+  {
+    "title": "Makerworld",
+    "url": "https://makerworld.com/",
+    "description": "3D printing model sharing community by Bambu Lab — discover and share printable designs",
+    "category": "Design",
+    "tags": [],
+    "added": "2026-06-05",
+    "favicon": ""
+  },
+  {
+    "title": "ClickUp",
+    "url": "https://app.clickup.com/",
+    "description": "ClickUp is the highest-rated and fastest growing Productivity Platform.",
+    "category": "Tools",
+    "tags": [],
+    "added": "2026-06-05",
+    "favicon": ""
+  }
+]
