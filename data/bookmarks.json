@@ -14,7 +14,7 @@
     "favicon": ""
   },
   {
-    "title": "Dash",
+    "title": "Cloudflare",
     "url": "https://dash.cloudflare.com/",
     "description": "Cloudflare Dashboard — manage DNS, CDN, security, and performance for your websites",
     "category": "Tools",
@@ -65,6 +65,24 @@
     "category": "Tools",
     "tags": [],
     "added": "2026-06-05",
+    "favicon": ""
+  },
+  {
+    "title": "Leetcode",
+    "url": "https://leetcode.cn",
+    "description": "",
+    "category": "Dev",
+    "tags": [],
+    "added": "2026-06-09",
+    "favicon": ""
+  },
+  {
+    "title": "Speedtest by Ookla - The Global Broadband Speed Test",
+    "url": "https://www.speedtest.net/",
+    "description": "Use Speedtest on all your devices with our free desktop and mobile apps.",
+    "category": "Tools",
+    "tags": [],
+    "added": "2026-06-10",
     "favicon": ""
   }
 ]
