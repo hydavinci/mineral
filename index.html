@@ -12,7 +12,7 @@
 
     :root {
       --bg: #08080d;
-      --surface: rgba(14, 14, 22, 0.8);
+      --surface: #111119;
       --border: rgba(255, 255, 255, 0.06);
       --text: #e0e0e0;
       --text-muted: #888;
@@ -20,6 +20,15 @@
       --accent: #4fc3f7;
       --accent-dim: rgba(79, 195, 247, 0.12);
       --radius: 14px;
+      color-scheme: dark;
+      --heading: #fff;
+      --dialog: #12121a;
+      --field: rgba(255, 255, 255, 0.04);
+      --popup: #1a1a2a;
+      --action-surface: #1c1c27;
+      --on-accent: #081018;
+      --overlay: rgba(0, 0, 0, 0.6);
+      --focus: rgba(79, 195, 247, 0.5);
     }
 
     body {
@@ -60,7 +69,7 @@
     .header-text h1 {
       font-size: 24px;
       font-weight: 700;
-      color: #fff;
+      color: var(--heading);
       letter-spacing: -0.5px;
     }
 
@@ -103,7 +112,7 @@
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: var(--overlay);
       backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
@@ -120,12 +129,14 @@
     }
 
     .modal {
-      background: #12121a;
+      background: var(--dialog);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 32px;
       width: 90%;
       max-width: 460px;
+      max-height: calc(100dvh - 32px);
+      overflow-y: auto;
       transform: translateY(10px);
       transition: transform 0.25s;
     }
@@ -137,7 +148,7 @@
     .modal h2 {
       font-size: 18px;
       font-weight: 600;
-      color: #fff;
+      color: var(--heading);
       margin-bottom: 20px;
     }
 
@@ -157,7 +168,7 @@
     .modal input, .modal textarea {
       width: 100%;
       padding: 9px 12px;
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--field);
       border: 1px solid var(--border);
       border-radius: 8px;
       color: var(--text);
@@ -168,8 +179,10 @@
     }
 
     .modal input:focus, .modal textarea:focus {
-      border-color: rgba(79, 195, 247, 0.4);
+      border-color: var(--focus);
     }
+
+    input::placeholder, textarea::placeholder { color: var(--text-dim); opacity: 1; }
 
     .modal textarea { resize: vertical; min-height: 50px; }
 
@@ -180,13 +193,12 @@
 
     .autocomplete-list {
       position: absolute;
-      top: 100%;
+      bottom: calc(100% + 4px);
       left: 0;
       right: 0;
-      background: #1a1a2a;
+      background: var(--popup);
       border: 1px solid var(--border);
       border-radius: 8px;
-      margin-top: 4px;
       max-height: 160px;
       overflow-y: auto;
       display: none;
@@ -252,7 +264,7 @@
     .btn-save {
       background: var(--accent);
       border-color: var(--accent);
-      color: #000;
+      color: var(--on-accent);
       font-weight: 600;
     }
 
@@ -270,7 +282,7 @@
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(60px);
-      background: #1a1a2a;
+      background: var(--popup);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 10px 20px;
@@ -338,8 +350,8 @@
     .access-box input {
       width: 180px;
       padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: var(--field);
+      border: 1px solid var(--border);
       border-radius: 12px;
       color: var(--text);
       font-size: 16px;
@@ -351,7 +363,7 @@
     }
 
     .access-box input:focus {
-      border-color: rgba(79, 195, 247, 0.5);
+      border-color: var(--focus);
       box-shadow: 0 0 20px rgba(79, 195, 247, 0.1);
     }
 
@@ -422,7 +434,7 @@
     }
 
     .search-box input:focus {
-      border-color: rgba(79, 195, 247, 0.4);
+      border-color: var(--focus);
     }
 
     .search-box::before {
@@ -480,11 +492,11 @@
       padding: 22px;
       text-decoration: none;
       color: inherit;
-      transition: all 0.25s ease;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      backdrop-filter: blur(8px);
+      min-width: 0;
       overflow: hidden;
     }
 
@@ -512,24 +524,42 @@
       border-color: rgba(79, 195, 247, 0.15);
     }
 
+    .card-link {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+      border-radius: 6px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
     .card-top {
+      flex: 1;
+      min-width: 0;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .card-favicon {
-      width: 20px;
-      height: 20px;
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-
     .card-title {
+      text-align: left;
       font-size: 15px;
       font-weight: 600;
-      color: #fff;
+      color: var(--heading);
       flex: 1;
+      min-width: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -540,18 +570,23 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.6px;
-      padding: 2px 7px;
+      padding: 4px 9px;
       border-radius: 12px;
       background: var(--accent-dim);
       color: var(--accent);
-      flex-shrink: 0;
+      min-width: 0;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .card-desc {
       font-size: 12.5px;
       color: var(--text-muted);
       line-height: 1.5;
-      flex: 1;
+      min-height: 37.5px;
+      max-height: 37.5px;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -562,8 +597,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 10px;
-      border-top: 1px solid var(--border);
+      gap: 10px;
     }
 
     .card-url {
@@ -572,10 +606,12 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 200px;
+      flex: 1;
+      min-width: 0;
     }
 
     .card-date {
+      flex-shrink: 0;
       font-size: 10px;
       color: var(--text-dim);
     }
@@ -602,51 +638,56 @@
       font-size: 10px;
       padding: 1px 6px;
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--field);
       color: var(--text-dim);
     }
 
-    /* Card actions */
-    .card-actions {
-      position: absolute;
-      top: 12px;
-      right: 12px;
+    /* Category footer; actions have their own space in the header. */
+    .card-management {
       display: flex;
-      gap: 4px;
-      opacity: 0;
-      transition: opacity 0.2s;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 4px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
     }
 
-    .card:hover .card-actions {
-      opacity: 1;
+    .card-actions {
+      display: flex;
+      flex-shrink: 0;
+      gap: 8px;
     }
 
     .card-action-btn {
-      width: 26px;
-      height: 26px;
-      border-radius: 6px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
       border: 1px solid var(--border);
-      background: rgba(8, 8, 13, 0.9);
+      background: var(--action-surface);
       color: var(--text-muted);
-      font-size: 12px;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.15s;
-      text-decoration: none;
+      transition: color 0.15s, border-color 0.15s;
     }
 
-    .card-action-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: var(--accent-dim);
+    .card-action-btn svg { width: 16px; height: 16px; pointer-events: none; }
+    .card-action-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .card-action-btn.delete:hover { border-color: #e05252; color: #e05252; }
+    .card-action-btn:focus-visible, .card-link:focus-visible, .card-top:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
     }
 
-    .card-action-btn.delete:hover {
-      border-color: #f44336;
-      color: #f44336;
-      background: rgba(244, 67, 54, 0.1);
+    @media (pointer: coarse), (max-width: 600px) {
+      .card-action-btn { width: 44px; height: 44px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card { animation: none !important; opacity: 1; transition: none; }
+      .card:hover { transform: none; }
     }
 
     /* Empty state */
@@ -679,21 +720,34 @@
       .grid { grid-template-columns: 1fr; }
       .header { flex-wrap: wrap; }
       .stats { margin-left: 0; margin-top: 8px; width: 100%; }
-      .controls { flex-direction: column; }
-      .search-box { min-width: 100%; }
+      .controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; }
+      .search-box { min-width: 0; }
+      .filters { grid-column: 1 / -1; grid-row: 2; }
+      .add-btn { grid-column: 2; grid-row: 1; }
+      .modal { padding: 24px; }
+      .modal input, .modal textarea { font-size: 16px; }
     }
 
     /* Light theme */
     @media (prefers-color-scheme: light) {
       :root {
         --bg: #f5f5f7;
-        --surface: rgba(255, 255, 255, 0.9);
+        --surface: #fff;
         --border: rgba(0, 0, 0, 0.06);
         --text: #333;
         --text-muted: #666;
-        --text-dim: #aaa;
+        --text-dim: #757575;
         --accent: #1565c0;
         --accent-dim: rgba(21, 101, 192, 0.08);
+        color-scheme: light;
+        --heading: #111;
+        --dialog: #fff;
+        --field: #f2f2f7;
+        --popup: #fff;
+        --action-surface: #fff;
+        --on-accent: #fff;
+        --overlay: rgba(24, 28, 36, 0.3);
+        --focus: rgba(21, 101, 192, 0.5);
       }
       body::before {
         background-image:
@@ -741,7 +795,7 @@
         <h2>✨ 添加收藏</h2>
         <label>URL *</label>
         <input type="url" id="m-url" placeholder="https://..." autocomplete="off">
-        <div id="m-fetching" style="font-size:11px;color:var(--text-dim);margin-top:4px;display:none">✨ 正在获取网站信息...</div>
+        <div id="m-fetching" role="status" aria-live="polite" style="font-size:12px;line-height:1.5;color:var(--text-muted);margin-top:6px;display:none">✨ 正在获取网站信息...</div>
         <label>标题</label>
         <input type="text" id="m-title" placeholder="网站名称（留空自动获取）">
         <label>描述</label>
@@ -822,10 +876,14 @@
       return ['All', ...cats];
     }
 
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
+    }
+
     function renderFilters() {
       const container = document.getElementById('filters');
       container.innerHTML = getCategories().map(cat =>
-        `<button class="filter-btn ${cat === activeCategory ? 'active' : ''}" data-cat="${cat}">${cat === 'All' ? '全部' : cat}</button>`
+        `<button class="filter-btn ${cat === activeCategory ? 'active' : ''}" data-cat="${escapeHTML(cat)}">${cat === 'All' ? '全部' : escapeHTML(cat)}</button>`
       ).join('');
 
       container.querySelectorAll('.filter-btn').forEach(btn => {
@@ -880,24 +938,32 @@
         const realIndex = bookmarks.indexOf(b);
         return `
         <div class="card" style="animation-delay: ${i * 0.04}s">
-          <div class="card-actions">
-            <button class="card-action-btn edit" data-idx="${realIndex}" title="编辑">✏</button>
-            <button class="card-action-btn delete" data-idx="${realIndex}" title="删除">✕</button>
-          </div>
-          <a href="${b.url}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:10px;flex:1">
-            <div class="card-top">
-              <img class="card-favicon" src="${b.favicon || getFavicon(b.url)}" alt="" onerror="this.style.display='none'">
-              <div class="card-title">${b.title}</div>
-              <span class="card-category">${b.category}</span>
+          <div class="card-header">
+            <a class="card-top" href="${escapeHTML(b.url)}" target="_blank" rel="noopener" title="${escapeHTML(b.title)}">
+              <div class="card-title">${escapeHTML(b.title)}</div>
+            </a>
+            <div class="card-actions">
+              <button class="card-action-btn edit" data-idx="${realIndex}" title="编辑" aria-label="编辑 ${escapeHTML(b.title)}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6Z"/><path d="m14 5 5 5"/></svg>
+              </button>
+              <button class="card-action-btn delete" data-idx="${realIndex}" title="删除" aria-label="删除 ${escapeHTML(b.title)}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg>
+              </button>
             </div>
-            <div class="card-desc">${b.description}</div>
-            ${b.tags && b.tags.length ? `<div class="card-tags">${b.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>` : ''}
+          </div>
+          <a class="card-link" href="${escapeHTML(b.url)}" target="_blank" rel="noopener">
+            <div class="card-desc">${escapeHTML(b.description)}</div>
+            ${b.tags && b.tags.length ? `<div class="card-tags">${b.tags.map(t => `<span class="tag">#${escapeHTML(t)}</span>`).join('')}</div>` : ''}
             <div class="card-footer">
-              <span class="card-url">${getDomain(b.url)}</span>
-              <span class="card-date">${b.added || ''}</span>
+              <span class="card-url">${escapeHTML(getDomain(b.url))}</span>
+              <span class="card-date">${escapeHTML(b.added || '')}</span>
               <span class="card-arrow">→</span>
             </div>
           </a>
+          <div class="card-management">
+            <span class="card-category" title="${escapeHTML(b.category)}">${escapeHTML(b.category)}</span>
+
+          </div>
         </div>
       `}).join('');
 
@@ -953,13 +1019,14 @@
       }
       catActiveIdx = Math.min(catActiveIdx, matched.length - 1);
       catList.innerHTML = matched.map((c, i) =>
-        `<div class="autocomplete-item ${i === catActiveIdx ? 'active' : ''}" data-val="${c}"><span class="cat-dot"></span>${c}</div>`
+        `<div class="autocomplete-item ${i === catActiveIdx ? 'active' : ''}" data-val="${escapeHTML(c)}"><span class="cat-dot"></span>${escapeHTML(c)}</div>`
       ).join('');
       catList.classList.add('show');
 
       catList.querySelectorAll('.autocomplete-item').forEach(item => {
         item.addEventListener('mousedown', (e) => {
           e.preventDefault();
+          delete autoValues['m-cat'];
           catInput.value = item.dataset.val;
           catList.classList.remove('show');
         });
@@ -982,6 +1049,7 @@
         renderCatSuggestions(catInput.value);
       } else if (e.key === 'Enter' && catActiveIdx >= 0) {
         e.preventDefault();
+        delete autoValues['m-cat'];
         catInput.value = items[catActiveIdx].dataset.val;
         catList.classList.remove('show');
         catActiveIdx = -1;
@@ -992,8 +1060,9 @@
     const modal = document.getElementById('modal');
     const addBtn = document.getElementById('addBtn');
 
-    function openModal() { modal.classList.add('active'); document.getElementById('m-url').focus(); }
-    function closeModal() { modal.classList.remove('active'); }
+    let modalGeneration = 0;
+    function openModal() { modalGeneration++; resetMetadata(); manualFields.clear(); modal.classList.add('active'); document.getElementById('m-url').focus(); }
+    function closeModal() { modalGeneration++; resetMetadata(); modal.classList.remove('active'); }
     function showToast(msg) {
       const t = document.getElementById('toast');
       t.textContent = msg;
@@ -1043,65 +1112,130 @@
     document.getElementById('modalCancel').addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-    // Auto-fetch metadata on URL input
+    // Cancel obsolete requests and never overwrite a user's manual field edits.
     let fetchTimer = null;
-    document.getElementById('m-url').addEventListener('blur', autoFetchMeta);
-    document.getElementById('m-url').addEventListener('input', () => {
+    let metadataRequest = null;
+    let metadataVersion = 0;
+    let lastMetadataURL = '';
+    const autoValues = {};
+    const manualFields = new Set();
+
+    function resetMetadata() {
       clearTimeout(fetchTimer);
+      metadataRequest?.controller.abort();
+      metadataRequest = null;
+      metadataVersion++;
+      lastMetadataURL = '';
+      Object.keys(autoValues).forEach(key => delete autoValues[key]);
+      document.getElementById('m-fetching').style.display = 'none';
+    }
+
+    function normalizeURL(value) {
+      value = value.trim();
+      if (!value) throw new Error('请输入网址');
+      const parsed = new URL(value.includes('://') ? value : `https://${value}`);
+      if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) {
+        throw new Error('仅支持 HTTP/HTTPS 网址');
+      }
+      return parsed.href;
+    }
+
+    ['m-title', 'm-desc', 'm-cat'].forEach(id => {
+      for (const event of ['beforeinput', 'input']) {
+        document.getElementById(id).addEventListener(event, () => {
+          delete autoValues[id]; manualFields.add(id);
+        });
+      }
+    });
+    document.getElementById('m-url').addEventListener('blur', () => {
+      clearTimeout(fetchTimer);
+      autoFetchMeta();
+    });
+    document.getElementById('m-url').addEventListener('input', () => {
+      // Remove only values we supplied for the previous URL, not manual text.
+      Object.entries(autoValues).forEach(([id, value]) => {
+        if (document.getElementById(id).value === value) document.getElementById(id).value = '';
+      });
+      resetMetadata();
       fetchTimer = setTimeout(autoFetchMeta, 800);
     });
 
     async function autoFetchMeta() {
+      if (!modal.classList.contains('active')) return;
       const urlInput = document.getElementById('m-url');
-      const url = urlInput.value.trim();
-      if (!url || !url.startsWith('http')) return;
-      // Don't re-fetch if fields already filled
-      if (document.getElementById('m-title').value && document.getElementById('m-desc').value) return;
-
+      let url;
+      try { url = normalizeURL(urlInput.value); } catch { return; }
+      if (lastMetadataURL === url) return;
+      if (metadataRequest?.url === url) return metadataRequest.promise;
+      metadataRequest?.controller.abort();
+      const controller = new AbortController();
+      const version = ++metadataVersion;
       const hint = document.getElementById('m-fetching');
       hint.style.display = 'block';
-
-      try {
-        const res = await fetch('/api/fetch-meta', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ACCESS_CODE}` },
-          body: JSON.stringify({ url }),
-        });
-        if (res.ok) {
+      hint.textContent = '✨ 正在获取网站信息...';
+      const request = {url, controller};
+      metadataRequest = request;
+      request.promise = (async () => {
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        try {
+          const res = await fetch('/api/fetch-meta', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ACCESS_CODE}` },
+            body: JSON.stringify({ url }),
+            signal: controller.signal,
+          });
+          if (!res.ok) {
+            if (res.status === 401) throw new Error('访问码已失效，请重新登录');
+            if (res.status >= 500) throw new Error('标题解析服务暂时不可用，请手动填写或稍后重试');
+            const error = await res.json();
+            throw new Error(error.error || '网址无法解析，请手动填写');
+          }
           const meta = await res.json();
-          if (meta.title && !document.getElementById('m-title').value) {
-            document.getElementById('m-title').value = meta.title;
+          if (version !== metadataVersion) return;
+          lastMetadataURL = url;
+          for (const [id, key] of [['m-title','title'], ['m-desc','description'], ['m-cat','category']]) {
+            const input = document.getElementById(id);
+            if (meta[key] && !input.value && !manualFields.has(id)) {
+              input.value = meta[key];
+              autoValues[id] = meta[key];
+            }
           }
-          if (meta.description && !document.getElementById('m-desc').value) {
-            document.getElementById('m-desc').value = meta.description;
-          }
-          if (meta.category && !document.getElementById('m-cat').value) {
-            document.getElementById('m-cat').value = meta.category;
-          }
-          if (meta.title || meta.description) {
-            hint.textContent = '✅ 已自动填充';
-            setTimeout(() => { hint.style.display = 'none'; hint.textContent = '✨ 正在获取网站信息...'; }, 1500);
-            return;
-          }
+          hint.textContent = meta.status === 'ok' ? '✅ 已获取网站信息' : `⚠️ ${meta.warning || '未获取到网页标题，暂用域名，请手动确认'}`;
+        } catch (error) {
+          if (version !== metadataVersion) return;
+          hint.textContent = `⚠️ ${error.name === 'AbortError' ? '获取超时，请手动填写或稍后重试' : error.message}`;
+        } finally {
+          clearTimeout(timeout);
+          if (metadataRequest === request) metadataRequest = null;
         }
-      } catch (e) { /* silent */ }
-
-      hint.textContent = '⚠️ 无法自动获取，请手动填写';
-      setTimeout(() => { hint.style.display = 'none'; hint.textContent = '✨ 正在获取网站信息...'; }, 2000);
+      })();
+      return request.promise;
     }
 
     document.getElementById('modalSave').addEventListener('click', async () => {
-      const url = document.getElementById('m-url').value.trim();
-      if (!url) return;
+      let url;
+      try { url = normalizeURL(document.getElementById('m-url').value); }
+      catch (error) { showToast(error.message); return; }
 
+      const saveGeneration = modalGeneration;
       const btn = document.getElementById('modalSave');
       btn.disabled = true;
       btn.textContent = '保存中...';
 
+      clearTimeout(fetchTimer);
+      if (!document.getElementById('m-title').value.trim()) await autoFetchMeta();
+      if (!modal.classList.contains('active') || saveGeneration !== modalGeneration) {
+        btn.disabled = false; btn.textContent = '保存'; return;
+      }
+      let currentURL;
+      try { currentURL = normalizeURL(document.getElementById('m-url').value); } catch {}
+      if (currentURL !== url) {
+        btn.disabled = false; btn.textContent = '保存'; showToast('网址已更改，请重新保存'); return;
+      }
       const tags = document.getElementById('m-tags').value.trim();
       const body = {
         url,
-        title: document.getElementById('m-title').value.trim(),
+        title: document.getElementById('m-title').value.trim() || new URL(url).hostname,
         description: document.getElementById('m-desc').value.trim(),
         category: document.getElementById('m-cat').value.trim() || 'Uncategorized',
         tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],

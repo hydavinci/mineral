@@ -5,6 +5,7 @@ import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime
+from metadata import fetch_metadata, InvalidURL
 
 DATA_FILE = "/home/mineral/data/bookmarks.json"
 API_TOKEN = "0824"
@@ -63,79 +64,22 @@ class Handler(BaseHTTPRequestHandler):
         """抓取 URL 的 title/description 用于自动填充"""
         if not self._auth():
             return
-        length = int(self.headers.get("Content-Length", 0))
-        body = json.loads(self.rfile.read(length))
-        url = body.get("url", "")
-        if not url:
-            self._json(400, {"error": "url required"})
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+            if not 0 < length <= 16384:
+                raise ValueError()
+            body = json.loads(self.rfile.read(length))
+            if not isinstance(body, dict):
+                raise ValueError()
+            meta = fetch_metadata(body.get("url", ""))
+        except InvalidURL as exc:
+            self._json(400, {"error": str(exc)})
             return
-
-        import urllib.request
-        import re
-        import html as html_mod
-
-        title = ""
-        desc = ""
-        raw_html = ""
-
-        # Try multiple User-Agents
-        user_agents = [
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
-        ]
-
-        for ua in user_agents:
-            try:
-                req = urllib.request.Request(url, headers={
-                    "User-Agent": ua,
-                    "Accept": "text/html,application/xhtml+xml",
-                    "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8",
-                })
-                with urllib.request.urlopen(req, timeout=10) as resp:
-                    raw_html = resp.read(64000).decode("utf-8", errors="ignore")
-                if raw_html:
-                    break
-            except Exception:
-                continue
-
-        if raw_html:
-            # title
-            m = re.search(r"<title[^>]*>([^<]+)</title>", raw_html, re.IGNORECASE)
-            if m:
-                title = html_mod.unescape(m.group(1).strip())
-            # og:title fallback
-            if not title:
-                m = re.search(r'<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']+)', raw_html, re.IGNORECASE)
-                if m:
-                    title = html_mod.unescape(m.group(1).strip())
-
-            # meta description (multiple patterns)
-            patterns = [
-                r'<meta[^>]+name=["\']description["\'][^>]+content=["\']([^"\']+)',
-                r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+name=["\']description["\']',
-                r'<meta[^>]+property=["\']og:description["\'][^>]+content=["\']([^"\']+)',
-                r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:description["\']',
-            ]
-            for pat in patterns:
-                m = re.search(pat, raw_html, re.IGNORECASE)
-                if m:
-                    desc = html_mod.unescape(m.group(1).strip())
-                    break
-
-        # Fallback: derive title from URL
-        if not title:
-            from urllib.parse import urlparse as _urlparse
-            parsed = _urlparse(url)
-            title = parsed.hostname.replace("www.", "").split(".")[0].capitalize()
-
-        # Fallback: if no description, try to get from search engine snippet
-        if not desc:
-            desc = self._fallback_desc_from_search(url, title)
-
-        # Auto-categorize
-        category = self._guess_category(url, title, desc)
-
-        self._json(200, {"title": title, "description": desc, "category": category})
+        except (ValueError, TypeError):
+            self._json(400, {"error": "请求格式无效"})
+            return
+        meta["category"] = self._guess_category(meta["url"], meta["title"], meta["description"])
+        self._json(200, meta)
 
     def _guess_category(self, url, title, desc):
         """根据 URL/标题/描述猜测分类"""
@@ -154,53 +98,6 @@ class Handler(BaseHTTPRequestHandler):
             if any(kw in text for kw in keywords):
                 return cat
         return "Uncategorized"
-
-    def _fallback_desc_from_search(self, url, title):
-        """通过域名和标题推断一句描述"""
-        from urllib.parse import urlparse as _urlparse
-        parsed = _urlparse(url)
-        domain = parsed.hostname.replace("www.", "") if parsed.hostname else ""
-
-        # Well-known sites
-        known = {
-            "dash.cloudflare.com": "Cloudflare Dashboard — manage DNS, CDN, security, and performance for your websites",
-            "github.com": "The world's largest platform for code hosting, collaboration, and open source",
-            "cloudflare.com": "Web performance and security company providing CDN, DDoS protection, and DNS services",
-            "vercel.com": "Frontend cloud platform for deploying web apps with zero configuration",
-            "figma.com": "Collaborative design tool for building user interfaces and prototypes",
-            "notion.so": "All-in-one workspace for notes, docs, wikis, and project management",
-            "linear.app": "Streamlined issue tracking and project management for software teams",
-            "youtube.com": "Video sharing and streaming platform",
-            "twitter.com": "Social media platform for real-time news and conversations",
-            "x.com": "Social media platform for real-time news and conversations",
-            "makerworld.com": "3D printing model sharing community by Bambu Lab — discover and share printable designs",
-            "thingiverse.com": "One of the largest 3D printing communities for sharing digital designs",
-            "printables.com": "3D model repository by Prusa — free STL files for 3D printing",
-            "reddit.com": "Social news aggregation, web content rating, and discussion platform",
-            "stackoverflow.com": "Q&A community for programmers and developers",
-            "huggingface.co": "AI community and platform for sharing machine learning models and datasets",
-            "arxiv.org": "Open access archive for scientific papers in physics, math, CS, and more",
-            "producthunt.com": "Platform to discover and share new tech products and startups",
-            "dribbble.com": "Community for designers to share, grow, and get hired",
-            "codepen.io": "Online code editor and front-end web development playground",
-            "netlify.com": "Platform for deploying and hosting modern web projects",
-            "supabase.com": "Open source Firebase alternative with PostgreSQL database",
-            "railway.app": "Infrastructure platform for deploying apps and databases",
-            "openai.com": "AI research company behind ChatGPT, GPT-4, and DALL-E",
-            "anthropic.com": "AI safety company and creator of Claude AI assistant",
-            "cursor.com": "AI-powered code editor for software development",
-            "v0.dev": "AI-powered UI generation tool by Vercel",
-            "replit.com": "Online IDE and collaborative coding platform",
-        }
-
-        for k, v in known.items():
-            if k in (domain or "") or k in url:
-                return v
-
-        # Generic fallback from title
-        if title and title.lower() not in ["home", "index", domain.split('.')[0]]:
-            return f"{title} — {domain}"
-        return ""
 
     def _handle_add(self):
         if not self._auth():
